@@ -31,6 +31,7 @@ Install package (in the same environment as VmShepherd) and configure ``VmShephe
       driver: AwsIaaSDriver
     preset:
       driver: AwsPresetDriver
+      ec2_page_size: 1000 (optional) - maximum number of instances returned in one call to aws ec2 api
 
     # ...
 

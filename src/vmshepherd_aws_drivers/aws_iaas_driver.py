@@ -6,6 +6,9 @@ from vmshepherd.iaas import AbstractIaasDriver, Vm, VmState
 
 class AwsIaaSDriver(AbstractIaasDriver):
 
+    def __init__(self, config):
+        self.config = config
+
     async def list_vms(self, preset_name):
         '''
         List VMs by preset name
@@ -14,17 +17,20 @@ class AwsIaaSDriver(AbstractIaasDriver):
         loop = asyncio.get_event_loop()
         session = aiobotocore.get_session(loop=loop)
         async with session.create_client('ec2') as client:
-            res = await client.describe_instances(
-                Filters=[
-                    {
-                        'Name': 'tag:aws:autoscaling:groupName',
-                        'Values': [preset_name]
-                    }
-                ]
-            )
+            paginator = client.get_paginator('describe_instances')
+            filters = [
+                {
+                    'Name': 'tag:aws:autoscaling:groupName',
+                    'Values': [preset_name]
+                }
+            ]
             instances = []
-            for vms in res['Reservations']:
-                instances.extend(vms['Instances'])
+            async for result in paginator.paginate(
+                PaginationConfig={'PageSize': self.config.get('ec2_page_size', 1000)},
+                Filters=filters
+            ):
+                for vms in result['Reservations']:
+                    instances.extend(vms['Instances'])
         result = []
         for instance in instances:
             result.append(self._map_vm_structure(instance))
