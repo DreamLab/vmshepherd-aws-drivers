@@ -30,7 +30,7 @@ class AwsIaaSDriver(AbstractIaasDriver):
             ):
                 for vms in result['Reservations']:
                     instances.extend(vms['Instances'])
-        result = []
+        return [self._map_vm_structure(instance) for instance in instances]
         for instance in instances:
             result.append(self._map_vm_structure(instance))
         return result
