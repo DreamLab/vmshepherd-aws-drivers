@@ -1,2 +1,5 @@
-from .aws_iaas_driver import AwsIaaSDriver  # noqa
-from .aws_preset_driver import AwsPresetDriver  # noqa
+from .aws_iaas_driver import AwsIaaSDriver
+from .aws_preset_driver import AwsPresetDriver
+
+
+__all__ = ['AwsIaaSDriver', 'AwsPresetDriver']

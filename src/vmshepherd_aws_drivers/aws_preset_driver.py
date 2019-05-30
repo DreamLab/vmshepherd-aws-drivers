@@ -1,5 +1,4 @@
 import base64
-import asyncio
 import aiobotocore
 from vmshepherd.presets import AbstractConfigurationDriver
 
@@ -9,7 +8,6 @@ class AwsPresetDriver(AbstractConfigurationDriver):
     def __init__(self, config, runtime, defaults):
         super().__init__(runtime, defaults)
         self._presets = {}
-        self._unmanaged = config.get('unmanaged', False)
 
     async def _get_preset_spec(self, preset_name: str):
         return self._specs[preset_name]
@@ -20,8 +18,7 @@ class AwsPresetDriver(AbstractConfigurationDriver):
 
     async def _reload(self):
 
-        loop = asyncio.get_event_loop()
-        session = aiobotocore.get_session(loop=loop)
+        session = aiobotocore.get_session()
         async with session.create_client('autoscaling') as asg, session.create_client('ec2') as ec2:
             res = await asg.describe_auto_scaling_groups()
 
@@ -32,7 +29,9 @@ class AwsPresetDriver(AbstractConfigurationDriver):
                 config['count'] = preset['DesiredCapacity']
                 config['network'] = {}
                 config['network']['availability_zone'] = ','.join(preset['AvailabilityZones'])
-                config['unmanaged'] = self._unmanaged
+
+                # preset is managed by ASG
+                config['unmanaged'] = True
 
                 if 'LaunchConfigurationName' in preset:
                     res = await asg.describe_launch_configurations(

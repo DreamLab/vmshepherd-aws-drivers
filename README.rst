@@ -4,7 +4,8 @@ vmshepherd-aws-drivers
 Introduction
 ------------
 
-Provides plugin for ``VmShepherd`` - driver allows to store runtime data and lock management in postgres database.
+Provides plugin for `VmShepherd <https://github.com/DreamLab/VmShepherd>`_ .
+Drivers allows to view panel with autoscaling groups and use rpc api from vmshepherd
 
 
 Installation
@@ -29,6 +30,7 @@ Install package (in the same environment as VmShepherd) and configure ``VmShephe
 
     iaas:
       driver: AwsIaaSDriver
+
     preset:
       driver: AwsPresetDriver
       ec2_page_size: 1000 (optional) - maximum number of instances returned in one call to aws ec2 api

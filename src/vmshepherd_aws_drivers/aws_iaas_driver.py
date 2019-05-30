@@ -14,8 +14,7 @@ class AwsIaaSDriver(AbstractIaasDriver):
         List VMs by preset name
         :arg present_name: string
         '''
-        loop = asyncio.get_event_loop()
-        session = aiobotocore.get_session(loop=loop)
+        session = aiobotocore.get_session()
         async with session.create_client('ec2') as client:
             paginator = client.get_paginator('describe_instances')
             filters = [

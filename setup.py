@@ -27,9 +27,6 @@ setup(
     package_dir={'': 'src'},
     include_package_data=True,
     install_requires=read('requirements.txt').split('\n'),
-    dependency_links=[
-        'http://pypi-repo.onet/pypi/vmshepherd/'
-    ],
     zip_safe=False,
     entry_points={
         'vmshepherd.driver.iaas': [
