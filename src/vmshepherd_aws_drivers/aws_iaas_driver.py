@@ -30,10 +30,8 @@ class AwsIaaSDriver(AbstractIaasDriver):
             ):
                 for vms in result['Reservations']:
                     instances.extend(vms['Instances'])
+
         return [self._map_vm_structure(instance) for instance in instances]
-        for instance in instances:
-            result.append(self._map_vm_structure(instance))
-        return result
 
     async def create_vm(self, preset_name: str, image: str, flavor: str, security_groups: List=None,
                         userdata: Dict=None, key_name: str=None, availability_zone: str=None,
