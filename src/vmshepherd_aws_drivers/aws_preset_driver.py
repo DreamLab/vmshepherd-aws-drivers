@@ -9,6 +9,7 @@ class AwsPresetDriver(AbstractConfigurationDriver):
     def __init__(self, config, runtime, defaults):
         super().__init__(runtime, defaults)
         self._presets = {}
+        self._unmanaged = config.get('unmanaged', False)
 
     async def _get_preset_spec(self, preset_name: str):
         return self._specs[preset_name]
@@ -31,6 +32,7 @@ class AwsPresetDriver(AbstractConfigurationDriver):
                 config['count'] = preset['DesiredCapacity']
                 config['network'] = {}
                 config['network']['availability_zone'] = ','.join(preset['AvailabilityZones'])
+                config['unmanaged'] = self._unmanaged
 
                 if 'LaunchConfigurationName' in preset:
                     res = await asg.describe_launch_configurations(
