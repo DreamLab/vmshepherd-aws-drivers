@@ -1,4 +1,4 @@
-import asyncio
+from itertools import chain
 import aiobotocore
 from typing import Any, Dict, List
 from vmshepherd.iaas import AbstractIaasDriver, Vm, VmState
@@ -25,11 +25,9 @@ class AwsIaaSDriver(AbstractIaasDriver):
             ]
             instances = []
             async for result in paginator.paginate(
-                PaginationConfig={'PageSize': self.config.get('ec2_page_size', 1000)},
-                Filters=filters
+                PaginationConfig={'PageSize': self.config.get('ec2_page_size', 5)}
             ):
-                for vms in result['Reservations']:
-                    instances.extend(vms['Instances'])
+                instances = chain(instances, *[vms['Instances'] for vms in result['Reservations']])
 
         return [self._map_vm_structure(instance) for instance in instances]
 
