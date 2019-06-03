@@ -1,6 +1,7 @@
 from itertools import chain
 import aiobotocore
-from typing import Any, Dict, List
+from botocore.exceptions import ClientError
+from typing import Any
 from vmshepherd.iaas import AbstractIaasDriver, Vm, VmState
 
 
@@ -25,22 +26,37 @@ class AwsIaaSDriver(AbstractIaasDriver):
             ]
             instances = []
             async for result in paginator.paginate(
-                PaginationConfig={'PageSize': self.config.get('ec2_page_size', 5)}
+                PaginationConfig={'PageSize': self.config.get('ec2_page_size', 5)},
+                Filters=filters
             ):
                 instances = chain(instances, *[vms['Instances'] for vms in result['Reservations']])
 
         return [self._map_vm_structure(instance) for instance in instances]
 
-    async def create_vm(self, preset_name: str, image: str, flavor: str, security_groups: List=None,
-                        userdata: Dict=None, key_name: str=None, availability_zone: str=None,
-                        subnets: List=None):
+    async def create_vm(self):
+        '''
+        NotImplemented - preset is managed by ASG
+        '''
         pass
 
     async def get_vm(self, vm_id: Any):
-        pass
+        session = aiobotocore.get_session()
+        async with session.create_client('ec2') as client:
+            try:
+                res = await client.describe_instances(
+                    InstanceIds=[vm_id]
+                )
+            except ClientError:
+                raise Exception(f'Vm (id: {vm_id} not found')
+        return self._map_vm_structure(res['Reservations'][0]['Instances'][0])
 
     async def terminate_vm(self, vm_id: Any):
-        pass
+        session = aiobotocore.get_session()
+        async with session.create_client('ec2') as client:
+            res = await client.terminate_instances(
+                InstanceIds=[vm_id]
+            )
+        return res
 
     def _map_vm_structure(self, instance):
         '''

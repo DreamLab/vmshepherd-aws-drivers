@@ -32,7 +32,7 @@ setup(
         'vmshepherd.driver.iaas': [
             'AwsIaaSDriver = vmshepherd_aws_drivers:AwsIaaSDriver'
         ],
-        'vmshepherd.driver.preset': [
+        'vmshepherd.driver.presets': [
             'AwsPresetDriver = vmshepherd_aws_drivers:AwsPresetDriver'
         ]
     },
