@@ -1,0 +1,9 @@
+include *.in
+include *.lock
+include *.rst
+include *.txt
+include .coveragerc
+include Makefile
+include Pipfile
+include tox.ini
+recursive-include tests *.py
