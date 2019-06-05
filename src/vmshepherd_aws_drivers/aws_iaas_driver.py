@@ -1,7 +1,7 @@
 from itertools import chain
 import aiobotocore
 from botocore.exceptions import ClientError
-from typing import Any
+from typing import Dict, List
 from vmshepherd.iaas import AbstractIaasDriver, Vm, VmState
 
 
@@ -21,7 +21,7 @@ class AwsIaaSDriver(AbstractIaasDriver):
     def __init__(self, config):
         self.config = config
 
-    async def list_vms(self, preset_name):
+    async def list_vms(self, preset_name: str) -> List:
         '''
         List VMs by preset name
         :arg present_name: string
@@ -50,7 +50,7 @@ class AwsIaaSDriver(AbstractIaasDriver):
         '''
         pass
 
-    async def get_vm(self, vm_id: Any):
+    async def get_vm(self, vm_id: str) -> Vm:
         session = aiobotocore.get_session()
         async with session.create_client('ec2') as client:
             try:
@@ -61,15 +61,14 @@ class AwsIaaSDriver(AbstractIaasDriver):
                 raise Exception(f'Vm (id: {vm_id} not found')
         return self._map_vm_structure(res['Reservations'][0]['Instances'][0])
 
-    async def terminate_vm(self, vm_id: Any):
+    async def terminate_vm(self, vm_id: str):
         session = aiobotocore.get_session()
         async with session.create_client('ec2') as client:
             res = await client.terminate_instances(
                 InstanceIds=[vm_id]
             )
-        return res
 
-    def _map_vm_structure(self, instance):
+    def _map_vm_structure(self, instance: Dict) -> Vm:
         '''
         Vm unification
         :arg instance: object
@@ -85,7 +84,7 @@ class AwsIaaSDriver(AbstractIaasDriver):
                     image=image, timed_shutdown_at=None)
         return iaasvm
 
-    def _map_vm_status(self, vm_status):
+    def _map_vm_status(self, vm_status: str) -> str:
         '''
          Map AWS vm statuses to vmshepherd vm statuses
          AWS vm statuses: pending | running | shutting-down | terminated | stopping | stopped
