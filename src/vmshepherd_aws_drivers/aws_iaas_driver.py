@@ -7,6 +7,17 @@ from vmshepherd.iaas import AbstractIaasDriver, Vm, VmState
 
 class AwsIaaSDriver(AbstractIaasDriver):
 
+    _VM_STATUSES = {
+        VmState.TERMINATED: [
+            'shutting-down',
+            'terminated',
+            'stopping',
+            'stopped'
+        ],
+        VmState.PENDING: ['pending'],
+        VmState.RUNNING: ['running']
+    }
+
     def __init__(self, config):
         self.config = config
 
@@ -82,19 +93,9 @@ class AwsIaaSDriver(AbstractIaasDriver):
          :arg string vm_status
          :returns string
         '''
-        statuses = {
-            VmState.TERMINATED: [
-                'shutting-down',
-                'terminated',
-                'stopping',
-                'stopped'
-            ],
-            VmState.PENDING: ['pending'],
-            VmState.RUNNING: ['running']
-        }
 
         state = VmState.UNKNOWN
-        for vmstate, value in statuses.items():
+        for vmstate, value in self._VM_STATUSES.items():
             if vm_status in value:
                 state = vmstate
                 break
