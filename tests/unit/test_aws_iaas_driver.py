@@ -24,6 +24,21 @@ class MockSession(MagicMock):
         return self
 
 
+class MockAsyncIterator:
+
+    def __init__(self, seq):
+        self.iter = iter(seq)
+
+    async def __aiter__(self, *args, **kwargs):
+        return self
+
+    async def __anext__(self, *args, **kwargs):
+        try:
+            return next(self.iter)
+        except StopIteration:
+            raise StopAsyncIteration
+
+
 class MockAWSServices(MagicMock):
 
     async def __aenter__(self):
@@ -35,20 +50,13 @@ class MockAWSServices(MagicMock):
     async def __await__(self):
         return iter()
 
-    async def __aiter__(self):
-        return self
-
-    async def __anext__(self):
-        return self
-
     def get_paginator(self, method):
-        return MockAWSEC2Service()
+        return self
 
     def paginate(self, PaginationConfig={}, Filters={}):
-        return {
-                'Reservations': [{
-                    'Instances': [ec2_mock]
-                 }]}
+        return MockAsyncIterator([{
+            'Reservations': [{'Instances': [ec2_mock]}]
+        }])
 
 class TestAwsIaaSDriver(AsyncTestCase):
 
@@ -78,7 +86,7 @@ class TestAwsIaaSDriver(AsyncTestCase):
         vm = await self.aws_driver.get_vm('someinstanceid')
         self.assertEqual(vm.id, 'someinstanceid')
 
-    async def atest_list_vms(self):
+    async def test_list_vms(self):
         # @TODO fixmw - problem with mock async for
         vms = await self.aws_driver.list_vms('somepresetname')
         self.assertEqual(vms[0].id, 'someinstanceid')
