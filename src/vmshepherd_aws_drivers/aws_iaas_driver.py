@@ -8,14 +8,12 @@ from vmshepherd.iaas import AbstractIaasDriver, Vm, VmState
 class AwsIaaSDriver(AbstractIaasDriver):
 
     _VM_STATUSES = {
-        VmState.TERMINATED: [
-            'shutting-down',
-            'terminated',
-            'stopping',
-            'stopped'
-        ],
-        VmState.PENDING: ['pending'],
-        VmState.RUNNING: ['running']
+         'shutting-down': VmState.TERMINATED,
+         'terminated':  VmState.TERMINATED,
+         'stopping':  VmState.TERMINATED,
+         'stopped':  VmState.TERMINATED,
+         'pending': VmState.PENDING,
+         'running': VmState.RUNNING
     }
 
     def __init__(self, config):
@@ -48,7 +46,7 @@ class AwsIaaSDriver(AbstractIaasDriver):
         '''
         NotImplemented - preset is managed by ASG
         '''
-        pass
+        raise Exception('Preset is managed by ASG')
 
     async def get_vm(self, vm_id: str) -> Vm:
         session = aiobotocore.get_session()
@@ -93,9 +91,4 @@ class AwsIaaSDriver(AbstractIaasDriver):
          :returns string
         '''
 
-        state = VmState.UNKNOWN
-        for vmstate, value in self._VM_STATUSES.items():
-            if vm_status in value:
-                state = vmstate
-                break
-        return state
+        return self._VM_STATUSES.get(vm_status, VmState.UNKNOWN)
