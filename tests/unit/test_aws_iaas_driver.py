@@ -1,4 +1,5 @@
 from aiounittest import AsyncTestCase
+from aiounittest.mock import AsyncMockIterator
 from unittest.mock import Mock, MagicMock, patch
 from asynctest import CoroutineMock
 from vmshepherd_aws_drivers import AwsIaaSDriver
@@ -24,21 +25,6 @@ class MockSession(MagicMock):
         return self
 
 
-class MockAsyncIterator:
-
-    def __init__(self, seq):
-        self.iter = iter(seq)
-
-    async def __aiter__(self, *args, **kwargs):
-        return self
-
-    async def __anext__(self, *args, **kwargs):
-        try:
-            return next(self.iter)
-        except StopIteration:
-            raise StopAsyncIteration
-
-
 class MockAWSServices(MagicMock):
 
     async def __aenter__(self):
@@ -47,14 +33,11 @@ class MockAWSServices(MagicMock):
     async def __aexit__(self, a, b, c):
         return self
 
-    async def __await__(self):
-        return iter()
-
     def get_paginator(self, method):
         return self
 
     def paginate(self, PaginationConfig={}, Filters={}):
-        return MockAsyncIterator([{
+        return AsyncMockIterator([{
             'Reservations': [{'Instances': [ec2_mock]}]
         }])
 
