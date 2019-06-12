@@ -41,6 +41,7 @@ class MockAWSServices(MagicMock):
             'Reservations': [{'Instances': [ec2_mock]}]
         }])
 
+
 class TestAwsIaaSDriver(AsyncTestCase):
 
     def setUp(self):
@@ -70,6 +71,5 @@ class TestAwsIaaSDriver(AsyncTestCase):
         self.assertEqual(vm.id, 'someinstanceid')
 
     async def test_list_vms(self):
-        # @TODO fixmw - problem with mock async for
         vms = await self.aws_driver.list_vms('somepresetname')
         self.assertEqual(vms[0].id, 'someinstanceid')
