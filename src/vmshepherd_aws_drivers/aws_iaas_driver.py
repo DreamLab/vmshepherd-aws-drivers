@@ -3,7 +3,7 @@ import aiobotocore
 from botocore.exceptions import ClientError
 from typing import Dict, List
 from vmshepherd.iaas import AbstractIaasDriver, Vm, VmState
-
+from vmshepherd.errors import VmNotFound
 
 class AwsIaaSDriver(AbstractIaasDriver):
 
@@ -56,7 +56,7 @@ class AwsIaaSDriver(AbstractIaasDriver):
                     InstanceIds=[vm_id]
                 )
             except ClientError:
-                raise Exception(f'Vm (id: {vm_id} not found')
+                raise VmNotFound(vm_id)
         return self._map_vm_structure(res['Reservations'][0]['Instances'][0])
 
     async def terminate_vm(self, vm_id: str):
