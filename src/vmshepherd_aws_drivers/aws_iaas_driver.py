@@ -55,8 +55,11 @@ class AwsIaaSDriver(AbstractIaasDriver):
                 res = await client.describe_instances(
                     InstanceIds=[vm_id]
                 )
-            except ClientError:
-                raise VmNotFound(vm_id)
+            except ClientError as ex:
+                if ex.response['Error']['Code'] == 'InvalidInstanceID.NotFound':
+                    raise VmNotFound(vm_id)
+                else:
+                    raise
         return self._map_vm_structure(res['Reservations'][0]['Instances'][0])
 
     async def terminate_vm(self, vm_id: str):
