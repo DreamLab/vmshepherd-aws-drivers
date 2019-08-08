@@ -14,7 +14,7 @@ def read(name):
 
 setup(
     name="vmshepherd-aws-drivers",
-    version="1.0.0",
+    version="1.0.1",
     author='Dreamlab - PaaS KRK',
     author_email='paas-support@dreamlab.pl',
     url='https://github.com/Dreamlab/vmshepherd-aws-drivers',
