@@ -5,7 +5,7 @@ matrix:
   include:
     - python: '3.6'
       env:
-        - TOXENV=python3-cover,report
+        - TOXENV=clean,check,python3,report
 before_install:
   - python --version
   - uname -a
