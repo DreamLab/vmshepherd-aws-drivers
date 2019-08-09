@@ -1,9 +1,10 @@
+from unittest.mock import MagicMock, Mock, patch
+
 from aiounittest import AsyncTestCase
 from aiounittest.mock import AsyncMockIterator
-from unittest.mock import Mock, MagicMock, patch
 from asynctest import CoroutineMock
-from vmshepherd_aws_drivers import AwsIaaSDriver
 
+from vmshepherd_aws_drivers import AwsIaaSDriver
 
 ec2_mock = {
     'InstanceId': 'someinstanceid',

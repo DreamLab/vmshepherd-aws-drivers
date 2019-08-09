@@ -1,4 +1,5 @@
 import base64
+
 import aiobotocore
 from vmshepherd.presets import AbstractConfigurationDriver
 
