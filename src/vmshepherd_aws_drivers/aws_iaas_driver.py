@@ -1,9 +1,10 @@
 from itertools import chain
+from typing import Dict, List
+
 import aiobotocore
 from botocore.exceptions import ClientError
-from typing import Dict, List
-from vmshepherd.iaas import AbstractIaasDriver, Vm, VmState
 from vmshepherd.errors import VmNotFound
+from vmshepherd.iaas import AbstractIaasDriver, Vm, VmState
 
 
 class AwsIaaSDriver(AbstractIaasDriver):
