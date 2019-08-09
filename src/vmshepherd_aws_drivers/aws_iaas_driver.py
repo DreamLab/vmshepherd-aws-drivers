@@ -5,6 +5,7 @@ from typing import Dict, List
 from vmshepherd.iaas import AbstractIaasDriver, Vm, VmState
 from vmshepherd.errors import VmNotFound
 
+
 class AwsIaaSDriver(AbstractIaasDriver):
 
     _VM_STATUSES = {
@@ -65,7 +66,7 @@ class AwsIaaSDriver(AbstractIaasDriver):
     async def terminate_vm(self, vm_id: str):
         session = aiobotocore.get_session()
         async with session.create_client('ec2') as client:
-            res = await client.terminate_instances(
+            await client.terminate_instances(
                 InstanceIds=[vm_id]
             )
 

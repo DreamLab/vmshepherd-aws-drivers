@@ -1,4 +1,4 @@
-from aiounittest import AsyncTestCase, futurized
+from aiounittest import AsyncTestCase
 from unittest.mock import Mock, MagicMock, patch
 from asynctest import CoroutineMock
 from vmshepherd_aws_drivers import AwsPresetDriver
