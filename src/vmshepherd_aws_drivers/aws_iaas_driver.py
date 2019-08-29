@@ -82,7 +82,7 @@ class AwsIaaSDriver(AbstractIaasDriver):
         flavor = instance['InstanceType']
         image = instance['ImageId']
         state = self._map_vm_status(instance['State']['Name'])
-        iaasvm = Vm(self, instance['InstanceId'], instance['InstanceId'], ip, created, state=state,
+        iaasvm = Vm(instance['InstanceId'], instance['InstanceId'], ip, created, state=state,
                     metadata=instance.get('Tags', []), tags=instance.get('Tags', []), flavor=flavor,
                     image=image, timed_shutdown_at=None)
         return iaasvm

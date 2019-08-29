@@ -1,3 +1,4 @@
+import datetime
 from unittest.mock import MagicMock, Mock, patch
 
 from aiounittest import AsyncTestCase
@@ -5,16 +6,24 @@ from aiounittest.mock import AsyncMockIterator
 from asynctest import CoroutineMock
 
 from vmshepherd_aws_drivers import AwsIaaSDriver
+from vmshepherd.iaas.vm import Vm
+
+ec2_created_at_mock = datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
 
 ec2_mock = {
     'InstanceId': 'someinstanceid',
     'PrivateIpAddress': '10.188.25.12',
-    'LaunchTime': None,
+    'LaunchTime': ec2_created_at_mock,
     'InstanceType': 't5-large',
     'ImageId': 'someimageid',
     'State': {'Name': 'running'},
     'Tags': ['tag1', 'tag2']
 }
+
+mapping_ec2_mock = Vm(
+    'someinstanceid', 'someinstanceid', ['10.188.25.12'], ec2_created_at_mock, 'running', ['tag1', 'tag2'],
+    ['tag1', 'tag2'], 't5-large', 'someimageid'
+)
 
 
 class MockSession(MagicMock):
@@ -56,11 +65,7 @@ class TestAwsIaaSDriver(AsyncTestCase):
 
     def test_map_vm_structure(self):
         structure = self.aws_driver._map_vm_structure(ec2_mock)
-        self.assertEqual(structure.id, 'someinstanceid')
-        self.assertEqual(structure.name, 'someinstanceid')
-        self.assertEqual(structure.ip, ['10.188.25.12'])
-        self.assertEqual(structure.flavor, 't5-large')
-        self.assertEqual(structure.state, self.aws_driver._map_vm_status('running'))
+        self.assertEqual(structure, mapping_ec2_mock)
 
     async def test_get_vm(self):
         ec2_result = {
@@ -69,8 +74,8 @@ class TestAwsIaaSDriver(AsyncTestCase):
                         }]}
         self.aws_services_mock.describe_instances = CoroutineMock(return_value=ec2_result)
         vm = await self.aws_driver.get_vm('someinstanceid')
-        self.assertEqual(vm.id, 'someinstanceid')
+        self.assertEqual(vm, mapping_ec2_mock)
 
     async def test_list_vms(self):
         vms = await self.aws_driver.list_vms('somepresetname')
-        self.assertEqual(vms[0].id, 'someinstanceid')
+        self.assertEqual(vms[0], mapping_ec2_mock)
