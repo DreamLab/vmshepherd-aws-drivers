@@ -30,6 +30,7 @@ class AwsPresetDriver(AbstractConfigurationDriver):
                 config['count'] = preset['DesiredCapacity']
                 config['network'] = {}
                 config['network']['availability_zone'] = ','.join(preset['AvailabilityZones'])
+                config['meta_tags'] = {tag['Key']: tag['Value'] for tag in preset['Tags']}
 
                 # preset is managed by ASG
                 config['unmanaged'] = True
