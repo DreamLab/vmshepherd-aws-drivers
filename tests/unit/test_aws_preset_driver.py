@@ -46,20 +46,30 @@ class TestAwsPresetDriver(AsyncTestCase):
     async def test_reload_launch_configuration(self):
 
         asg_mock = {
-                'AutoScalingGroups': [{
-                    'AutoScalingGroupName': 'testasg',
-                    'DesiredCapacity': 3,
-                    'AvailabilityZones': ['eu-central-1'],
-                    'LaunchConfigurationName': 'test-lcn'
-                }]
+            'AutoScalingGroups': [{
+                'AutoScalingGroupName': 'testasg',
+                'DesiredCapacity': 3,
+                'AvailabilityZones': ['eu-central-1'],
+                'LaunchConfigurationName': 'test-lcn',
+                'Tags': [
+                    {
+                        'PropagateAtLaunch': False,
+                        'Value': 'value1',
+                        'ResourceId': 'testasg',
+                        'Key': 'key1',
+                        'ResourceType': 'auto-scaling-group'
+                    }
+                ]
+            }]
         }
         lc_mock = {
-                'LaunchConfigurations': [
-                    {
-                        'InstanceType': 't5-large',
-                        'ImageId': 'someimageid',
-                        'SecurityGroups': ['sg_id_1', 'sg_id_2']
-                    }]}
+            'LaunchConfigurations': [
+                {
+                    'InstanceType': 't5-large',
+                    'ImageId': 'someimageid',
+                    'SecurityGroups': ['sg_id_1', 'sg_id_2']
+                }]
+        }
 
         self.aws_services_mock.describe_auto_scaling_groups = CoroutineMock(return_value=asg_mock)
         self.aws_services_mock.describe_launch_configurations = CoroutineMock(return_value=lc_mock)
@@ -70,40 +80,50 @@ class TestAwsPresetDriver(AsyncTestCase):
         self.aws_services_mock.describe_auto_scaling_groups.assert_called()
         self.aws_services_mock.describe_launch_configurations.assert_called_with(LaunchConfigurationNames=['test-lcn'])
         expected_preset_spec = {
-          'count': 3,
-          'flavor': 't5-large',
-          'image': 'someimageid',
-          'name': 'testasg',
-          'network': {
-              'availability_zone': 'eu-central-1',
-              'security_groups': ['sg_id_1', 'sg_id_2']
-              },
-          'unmanaged': True
+            'count': 3,
+            'flavor': 't5-large',
+            'image': 'someimageid',
+            'name': 'testasg',
+            'network': {
+                'availability_zone': 'eu-central-1',
+                'security_groups': ['sg_id_1', 'sg_id_2']
+            },
+            'meta_tags': {'key1': 'value1'},
+            'unmanaged': True
         }
         self.assertEqual(await instance._get_preset_spec(preset_name='testasg'), expected_preset_spec)
 
     async def test_reload_launch_template(self):
 
         asg_mock = {
-                'AutoScalingGroups': [{
-                    'AutoScalingGroupName': 'testasg',
-                    'DesiredCapacity': 3,
-                    'AvailabilityZones': ['eu-central-1'],
-                    'LaunchTemplate': {
-                        'LaunchTemplateId': 'somelaunchtemplateid',
-                        'Version': '1234'
-                        }
-                }]
+            'AutoScalingGroups': [{
+                'AutoScalingGroupName': 'testasg',
+                'DesiredCapacity': 3,
+                'AvailabilityZones': ['eu-central-1'],
+                'LaunchTemplate': {
+                    'LaunchTemplateId': 'somelaunchtemplateid',
+                    'Version': '1234'
+                },
+                'Tags': [
+                    {
+                        'PropagateAtLaunch': False,
+                        'Value': 'value1',
+                        'ResourceId': 'testasg',
+                        'Key': 'key1',
+                        'ResourceType': 'auto-scaling-group'
+                    }
+                ]
+            }]
         }
         lt_mock = {
-                'LaunchTemplateVersions': [{
-                        'LaunchTemplateData': {
-                                'InstanceType': 't5-large',
-                                'ImageId': 'someimageid',
-                                'SecurityGroupIds': ['sg_id_1', 'sg_id_2']
-                            }
-                    }]
-            }
+            'LaunchTemplateVersions': [{
+                'LaunchTemplateData': {
+                    'InstanceType': 't5-large',
+                    'ImageId': 'someimageid',
+                    'SecurityGroupIds': ['sg_id_1', 'sg_id_2']
+                }
+            }]
+        }
 
         self.aws_services_mock.describe_auto_scaling_groups = CoroutineMock(return_value=asg_mock)
         self.aws_services_mock.describe_launch_template_versions = CoroutineMock(return_value=lt_mock)
@@ -116,14 +136,15 @@ class TestAwsPresetDriver(AsyncTestCase):
                 LaunchTemplateId='somelaunchtemplateid',
                 Versions=['1234'])
         expected_preset_spec = {
-          'count': 3,
-          'flavor': 't5-large',
-          'image': 'someimageid',
-          'name': 'testasg',
-          'network': {
-              'availability_zone': 'eu-central-1',
-              'security_groups': ['sg_id_1', 'sg_id_2']
-              },
-          'unmanaged': True
+            'count': 3,
+            'flavor': 't5-large',
+            'image': 'someimageid',
+            'name': 'testasg',
+            'network': {
+                'availability_zone': 'eu-central-1',
+                'security_groups': ['sg_id_1', 'sg_id_2']
+            },
+            'meta_tags': {'key1': 'value1'},
+            'unmanaged': True
         }
         self.assertEqual(await instance._get_preset_spec(preset_name='testasg'), expected_preset_spec)
