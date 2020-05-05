@@ -42,7 +42,7 @@ class AwsPresetDriver(AbstractConfigurationDriver):
                     launch_config = res['LaunchConfigurations'][0]
                     config['flavor'] = launch_config['InstanceType']
                     config['image'] = launch_config['ImageId']
-                    config['network']['security_groups'] = launch_config['SecurityGroups']
+                    config['network']['security_groups'] = launch_config.get('SecurityGroups', [])
                     if 'UserData' in launch_config:
                         config['user_data'] = base64.b64decode(launch_config['UserData']).decode('utf-8')
 
@@ -58,7 +58,7 @@ class AwsPresetDriver(AbstractConfigurationDriver):
                     launch_config = res['LaunchTemplateVersions'][0]['LaunchTemplateData']
                     config['flavor'] = launch_config['InstanceType']
                     config['image'] = launch_config['ImageId']
-                    config['network']['security_groups'] = launch_config['SecurityGroupIds']
+                    config['network']['security_groups'] = launch_config.get('SecurityGroupIds', [])
                     if 'UserData' in launch_config:
                         config['userdata'] = base64.b64decode(launch_config['UserData']).decode('utf-8')
 
