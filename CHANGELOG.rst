@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.2.1 (2020-05-06)
+------------------
+
+* bugfix: SecurityGroups field is optional in a launch configuration  (eg. EKS' ASG)
+
 1.2.0 (2019-12-18)
 ------------------
 
