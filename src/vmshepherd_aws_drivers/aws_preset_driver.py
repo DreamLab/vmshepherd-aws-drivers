@@ -19,14 +19,9 @@ class AwsPresetDriver(AbstractConfigurationDriver):
 
     async def _get_auto_scaling_groups(self, client):
         asg = []
-        token = ''
-        while True:
-            res = await client.describe_auto_scaling_groups(NextToken=token)
-            asg.extend(res['AutoScalingGroups'])
-            token = res.get('NextToken')
-            if not token:
-                break
-
+        paginator = client.get_paginator('describe_auto_scaling_groups')
+        async for result in paginator.paginate():
+            asg.extend(result['AutoScalingGroups'])
         return asg
 
     async def _reload(self):

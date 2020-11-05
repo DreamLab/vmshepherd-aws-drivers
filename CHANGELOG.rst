@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.3.1 (2020-11-05)
+------------------
+
+* bugfix: AutoScalingGroups paginator - the right way
+
 1.3.0 (2020-11-04)
 ------------------
 
