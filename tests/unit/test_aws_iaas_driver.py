@@ -4,9 +4,11 @@ from unittest.mock import MagicMock, Mock, patch
 from aiounittest import AsyncTestCase
 from aiounittest.mock import AsyncMockIterator
 from asynctest import CoroutineMock
+from vmshepherd.iaas.vm import Vm
 
 from vmshepherd_aws_drivers import AwsIaaSDriver
-from vmshepherd.iaas.vm import Vm
+
+from .common import MockSession
 
 ec2_created_at_mock = datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
 
@@ -24,15 +26,6 @@ mapping_ec2_mock = Vm(
     'someinstanceid', 'someinstanceid', ['10.188.25.12'], ec2_created_at_mock, 'running', ['tag1', 'tag2'],
     ['tag1', 'tag2'], 't5-large', 'someimageid'
 )
-
-
-class MockSession(MagicMock):
-
-    async def __aenter__(self, a, b):
-        return self
-
-    def __aexit__(self):
-        return self
 
 
 class MockAWSServices(MagicMock):
@@ -69,9 +62,10 @@ class TestAwsIaaSDriver(AsyncTestCase):
 
     async def test_get_vm(self):
         ec2_result = {
-                'Reservations': [{
-                    'Instances': [ec2_mock]
-                        }]}
+            'Reservations': [{
+                'Instances': [ec2_mock]
+            }]
+        }
         self.aws_services_mock.describe_instances = CoroutineMock(return_value=ec2_result)
         vm = await self.aws_driver.get_vm('someinstanceid')
         self.assertEqual(vm, mapping_ec2_mock)
