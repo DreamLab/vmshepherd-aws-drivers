@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock, Mock, call, patch
 
 from aiounittest import AsyncTestCase
+from aiounittest.mock import AsyncMockIterator
 from asynctest import CoroutineMock
 
 from vmshepherd_aws_drivers import AwsPresetDriver
@@ -10,6 +11,13 @@ from .common import MockSession
 
 class MockAWSServices(MagicMock):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.items = []
+
+    def set_items(self, items):
+        self.items = items
+
     async def __aenter__(self):
         return self
 
@@ -18,6 +26,12 @@ class MockAWSServices(MagicMock):
 
     def __await__(self):
         return iter([])
+
+    def get_paginator(self, method):
+        return self
+
+    def paginate(self, PaginationConfig={}, Filters={}):
+        return AsyncMockIterator(self.items)
 
 
 class TestAwsPresetDriver(AsyncTestCase):
@@ -64,13 +78,12 @@ class TestAwsPresetDriver(AsyncTestCase):
                 }]
         }
 
-        self.aws_services_mock.describe_auto_scaling_groups = CoroutineMock(return_value=asg_mock)
+        self.aws_services_mock.set_items([asg_mock])
         self.aws_services_mock.describe_launch_configurations = CoroutineMock(return_value=lc_mock)
 
         instance = AwsPresetDriver({}, {}, {})
         await instance._reload()
         self.aiobotocore_mock.get_session.assert_called()
-        self.aws_services_mock.describe_auto_scaling_groups.assert_called()
         self.aws_services_mock.describe_launch_configurations.assert_called_with(LaunchConfigurationNames=['test-lcn'])
         expected_preset_spec = {
             'count': 3,
@@ -118,13 +131,12 @@ class TestAwsPresetDriver(AsyncTestCase):
             }]
         }
 
-        self.aws_services_mock.describe_auto_scaling_groups = CoroutineMock(return_value=asg_mock)
+        self.aws_services_mock.set_items([asg_mock])
         self.aws_services_mock.describe_launch_template_versions = CoroutineMock(return_value=lt_mock)
 
         instance = AwsPresetDriver({}, {}, {})
         await instance._reload()
         self.aiobotocore_mock.get_session.assert_called()
-        self.aws_services_mock.describe_auto_scaling_groups.assert_called()
         self.aws_services_mock.describe_launch_template_versions.assert_called_with(
             LaunchTemplateId='somelaunchtemplateid',
             Versions=['1234']
@@ -185,13 +197,12 @@ class TestAwsPresetDriver(AsyncTestCase):
                 }]
         }
 
-        self.aws_services_mock.describe_auto_scaling_groups = CoroutineMock(side_effect=asg_mock_reponses)
+        self.aws_services_mock.set_items(asg_mock_reponses)
         self.aws_services_mock.describe_launch_configurations = CoroutineMock(return_value=lc_mock)
 
         instance = AwsPresetDriver({}, {}, {})
         await instance._reload()
         self.aiobotocore_mock.get_session.assert_called()
-        self.aws_services_mock.describe_auto_scaling_groups.assert_called()
         self.aws_services_mock.describe_launch_configurations.assert_has_calls([
             call(LaunchConfigurationNames=['test-lcn-1']),
             call(LaunchConfigurationNames=['test-lcn-2']),
