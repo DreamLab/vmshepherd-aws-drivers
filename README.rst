@@ -3,8 +3,8 @@ vmshepherd-aws-drivers
 
 |image0|_ |image1|_
 
-.. |image0| image:: https://api.travis-ci.org/DreamLab/vmshepherd-aws-drivers.svg?branch=master
-.. _image0: https://travis-ci.org/DreamLab/vmshepherd-aws-drivers
+.. |image0| image:: https://api.travis-ci.com/DreamLab/vmshepherd-aws-drivers.svg?branch=master
+.. _image0: https://travis-ci.com/DreamLab/vmshepherd-aws-drivers
 
 .. |image1| image:: https://badge.fury.io/py/vmshepherd-aws-drivers.svg
 .. _image1: https://badge.fury.io/py/vmshepherd-aws-drivers
