@@ -17,14 +17,26 @@ class AwsPresetDriver(AbstractConfigurationDriver):
         await self._reload()
         return self._specs.keys()
 
+    async def _get_auto_scaling_groups(self, client):
+        asg = []
+        token = ''
+        while True:
+            res = await client.describe_auto_scaling_groups(NextToken=token)
+            asg.extend(res['AutoScalingGroups'])
+            token = res.get('NextToken')
+            if not token:
+                break
+
+        return asg
+
     async def _reload(self):
 
         session = aiobotocore.get_session()
         async with session.create_client('autoscaling') as asg, session.create_client('ec2') as ec2:
-            res = await asg.describe_auto_scaling_groups()
+            auto_scaling_groups = await self._get_auto_scaling_groups(asg)
 
             _tmp_specs = {}
-            for preset in res['AutoScalingGroups']:
+            for preset in auto_scaling_groups:
                 config = {}
                 config['name'] = preset_name = preset['AutoScalingGroupName']
                 config['count'] = preset['DesiredCapacity']

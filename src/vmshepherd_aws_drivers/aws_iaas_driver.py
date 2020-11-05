@@ -10,12 +10,12 @@ from vmshepherd.iaas import AbstractIaasDriver, Vm, VmState
 class AwsIaaSDriver(AbstractIaasDriver):
 
     _VM_STATUSES = {
-         'shutting-down': VmState.TERMINATED,
-         'terminated':  VmState.TERMINATED,
-         'stopping':  VmState.TERMINATED,
-         'stopped':  VmState.TERMINATED,
-         'pending': VmState.PENDING,
-         'running': VmState.RUNNING
+        'shutting-down': VmState.TERMINATED,
+        'terminated': VmState.TERMINATED,
+        'stopping': VmState.TERMINATED,
+        'stopped': VmState.TERMINATED,
+        'pending': VmState.PENDING,
+        'running': VmState.RUNNING
     }
 
     def __init__(self, config):

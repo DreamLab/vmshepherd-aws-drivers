@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.3.0 (2020-11-04)
+------------------
+
+* bugfix: AutoScalingGroups fetch aware of marker/token 
+
 1.2.1 (2020-05-06)
 ------------------
 
